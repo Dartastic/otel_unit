@@ -1,11 +1,12 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_unit_suppression.dart';
 
 class UnitResult {
+  /// Creates a result.
   const UnitResult({
     this.environment,
     this.orgId,
@@ -65,8 +66,13 @@ class UnitResult {
   final String? errorMessage;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class UnitCallResult<T> {
+  /// Creates a call result.
   const UnitCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final UnitResult? result;
 }
@@ -74,142 +80,148 @@ class UnitCallResult<T> {
 Future<T> tracedUnit<T>({
   required String operation,
   required Future<UnitCallResult<T>> Function() invoke,
-  Tracer? tracer,
+  APITracer? tracer,
 }) async {
   if (unitInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }
-  final t = tracer ?? OTel.tracerProvider().getTracer('otel_unit');
+  final t = tracer ?? OTelAPI.tracerProvider().getTracer('otel_unit');
   final span = t.startSpan('unit $operation', kind: SpanKind.client);
   try {
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.system', 'unit')]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.system', 'unit')]));
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.method', operation)]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.method', operation)]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.environment != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.environment', res.environment!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.environment', res.environment!)]));
       }
       if (res.orgId != null) {
-        span.addAttributes(
-            OTel.attributes([OTel.attributeString('unit.org.id', res.orgId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.org.id', res.orgId!)]));
       }
       if (res.surface != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.surface', res.surface!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.surface', res.surface!)]));
       }
       if (res.resourceType != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.resource.type', res.resourceType!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.resource.type', res.resourceType!)
+        ]));
       }
       if (res.resourceId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.resource.id', res.resourceId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.resource.id', res.resourceId!)]));
       }
       if (res.customerId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.customer.id', res.customerId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.customer.id', res.customerId!)]));
       }
       if (res.customerType != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.customer.type', res.customerType!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.customer.type', res.customerType!)
+        ]));
       }
       if (res.customerStatus != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('unit.customer.status', res.customerStatus!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.customer.status', res.customerStatus!)
         ]));
       }
       if (res.applicationStatus != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'unit.application.status', res.applicationStatus!)
         ]));
       }
       if (res.applicationKind != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('unit.application.kind', res.applicationKind!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.application.kind', res.applicationKind!)
         ]));
       }
       if (res.accountId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.account.id', res.accountId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.account.id', res.accountId!)]));
       }
       if (res.accountType != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.account.type', res.accountType!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.account.type', res.accountType!)]));
       }
       if (res.accountStatus != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.account.status', res.accountStatus!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.account.status', res.accountStatus!)
+        ]));
       }
       if (res.cardId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.card.id', res.cardId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.card.id', res.cardId!)]));
       }
       if (res.cardStatus != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.card.status', res.cardStatus!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.card.status', res.cardStatus!)]));
       }
       if (res.cardKind != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.card.kind', res.cardKind!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.card.kind', res.cardKind!)]));
       }
       if (res.transactionId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.transaction.id', res.transactionId!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.transaction.id', res.transactionId!)
+        ]));
       }
       if (res.transactionDirection != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'unit.transaction.direction', res.transactionDirection!)
         ]));
       }
       if (res.transactionStatus != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'unit.transaction.status', res.transactionStatus!)
         ]));
       }
       if (res.paymentId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.payment.id', res.paymentId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.payment.id', res.paymentId!)]));
       }
       if (res.paymentKind != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.payment.kind', res.paymentKind!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.payment.kind', res.paymentKind!)]));
       }
       if (res.paymentStatus != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.payment.status', res.paymentStatus!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('unit.payment.status', res.paymentStatus!)
+        ]));
       }
       if (res.amountMicros != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('unit.amount.micros', res.amountMicros!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeInt('unit.amount.micros', res.amountMicros!)]));
       }
       if (res.currencyCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.currency', res.currencyCode!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.currency', res.currencyCode!)]));
       }
       if (res.statusCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('http.response.status_code', res.statusCode!)
+        ]));
       }
       if (res.errorCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('unit.error.code', res.errorCode!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('unit.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400) ||
           res.applicationStatus == 'Denied' ||
           res.paymentStatus == 'Rejected';
       if (fail) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
-              ErrorResource.errorType.key, res.errorCode ?? 'unit.error')
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              ErrorAttributes.errorType.key, res.errorCode ?? 'unit.error')
         ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
